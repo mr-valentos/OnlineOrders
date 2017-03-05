@@ -5,15 +5,11 @@
     <title>Latest Posts</title>
 </head>
 <body>
-    <h2>Latets posts</h2>
-    {% for food in foods %}
-        <div class="post">
-            <h3 class="title">{{ food.name }}</h3>
-            <h3 class="title"> Категория: {{ food.category }}</h3>
-            {% for foo in food.category.food %}
-                <h3 class="title"> {{ foo }}</h3>
-            {% endfor %}
-        </div>
-    {% endfor %}
+    <h2>Categories:</h2>
+    <ul>
+        {% for category in categories %}
+                <li class="title"><a href="{{url_for('category', id=category.id)}}">{{ category.name }}</a></li>
+        {% endfor %}
+    </ul>
 </body>
 </html>
