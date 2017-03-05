@@ -7,6 +7,11 @@
 <body>
 <ul>
     <h1>{{category.name}}</h1>
+    <h3><a href="/">Все категории</a></h3>
+    <ul class="actions">
+        <li class="action" id="delete_category" onclick="return confirm('Delete this category?');"><a href="{{url_for('delete_category', id=category.id)}}">Delete</a></li>
+    </ul>
+    <p>
 {% for food in category.food %}
     <li>{{food}}</li>
 {% endfor %}

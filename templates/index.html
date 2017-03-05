@@ -6,6 +6,7 @@
 </head>
 <body>
     <h2>Categories:</h2>
+    <p><a href="/category/new">Добавить катекорию</a></p>
     <ul>
         {% for category in categories %}
                 <li class="title"><a href="{{url_for('category', id=category.id)}}">{{ category.name }}</a></li>
