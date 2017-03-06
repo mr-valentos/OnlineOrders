@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>New dish</title>
+</head>
+<body>
+  <h3>New dish</h3>
+  <div class="new_food">
+     <form method="post" action="/create_food">
+         <label for="name">Имя блюда</label>
+         <input type="text" name="name" id="name" />
+         <br />
+         <label for="description">Описание</label>
+         <input type="text" name="description" id="description" />
+         <br />
+         <label for="price">Цена</label>
+         <input type="text" name="price" id="price" />
+         <br />
+         <label for="image">Картинка</label>
+         <input type="text" name="image" id="image" />
+         <br />
+         <label for="category_id">Категория</label>
+         <input type="text" name="category_id" id="category_id" />
+          <select>
+            <option>Пункт 1</option>
+            <option>Пункт 2</option>
+          </select>
+         <br/>
+         <p>
+         <input type="submit" />
+     </form>
+  </div>
+</body>
+</html>

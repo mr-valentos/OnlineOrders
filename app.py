@@ -13,7 +13,7 @@ from models.food import Food
 @app.route('/', methods=['GET'])
 def index():
 
-    return render_template('index.html', categories=Category.query.all())
+    return render_template('index.html', categories=Category.query.all(), foods=Food.query.all())
 
 @app.route('/category/new', methods=['GET'])
 def new_category():
@@ -42,6 +42,33 @@ def delete_category(id):
     db.session.commit()
     return render_template('index.html', categories=Category.query.all())
 
+@app.route('/new_food', methods=['GET'])
+def new_food():
+    return render_template('newfood.html')
+
+@app.route('/create_food', methods=['POST'])
+def create_food():
+    from models.food import Food
+
+    food = Food(request.form['name'], request.form['description'], request.form['price'], request.form['image'],
+                request.form['category_id'])
+    db.session.add(food)
+    db.session.commit()
+    return render_template('index.html', categories=Category.query.all())
+
+@app.route('/food/<id>', methods=['GET'])
+def food(id):
+
+    return render_template('food.html', food=Food.query.get(id))
+
+@app.route('/food/<id>/delete', methods=['GET'])
+def delete_food(id):
+    from models.food import Food
+    from app import db
+    food = Food.query.get(id)
+    db.session.delete(food)
+    db.session.commit()
+    return render_template('index.html', categories=Category.query.all())
 
 if __name__ == '__main__':
     app.run()
