@@ -1,6 +1,8 @@
 import os
 from flask import Flask, render_template, request
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager
+from flask_principal import Principal, Permission, RoleNeed
 
 app = Flask(__name__)
 app.config.from_object(os.environ['APP_SETTINGS'])
@@ -8,12 +10,54 @@ db = SQLAlchemy(app)
 
 from models.category import Category
 from models.food import Food
+from models.user import User
+
+principals = Principal(app)
+login_manager = LoginManager(app)
+
+
+
+
+
+'''
+@login_manager.user_loader
+def load_user(userid):
+    # Return an instance of the User model
+    return datastore.find_user(id=userid)
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    # A hypothetical login form that uses Flask-WTF
+    form = LoginForm()
+
+    # Validate form input
+    if form.validate_on_submit():
+        # Retrieve the user from the hypothetical datastore
+        user = datastore.find_user(email=form.email.data)
+
+        # Compare passwords (use password hashing production)
+        if form.password.data == user.password:
+            # Keep the user info in the session using Flask-Login
+            login_user(user)
+
+            # Tell Flask-Principal the identity changed
+            identity_changed.send(current_app._get_current_object(),
+                                  identity=Identity(user.id))
+
+            return redirect(request.args.get('next') or '/')
+
+    return render_template('login.html', form=form)'''
 
 
 @app.route('/', methods=['GET'])
 def index():
 
     return render_template('index.html', categories=Category.query.all(), foods=Food.query.all())
+
+@app.route('/admin/users', methods=['GET'])
+def users():
+    return render_template('admin/users.html', users=User.query.all())
+
 
 @app.route('/category/new', methods=['GET'])
 def new_category():
