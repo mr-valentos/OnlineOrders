@@ -70,5 +70,15 @@ def delete_food(id):
     db.session.commit()
     return render_template('index.html', categories=Category.query.all())
 
+@app.route('/food/<id>/edit', methods=['POST'])
+def edit_price(id):
+
+    from app import db
+    food = Food.query.get(id)
+    food.price = request.form['price']
+    db.session.add(food)
+    db.session.commit()
+    return render_template('index.html', categories=Category.query.all())
+
 if __name__ == '__main__':
     app.run()
