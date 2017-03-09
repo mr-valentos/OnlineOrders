@@ -10,5 +10,13 @@
         <li class="action" id="delete_food" onclick="return confirm('Delete this dish?');">
             <a href="{{url_for('delete_food', id=food.id)}}">Удалить</a></li>
     </ul>
+    <div class="edit_price">
+        <form method="post" action="/food/{{food.id}}/edit">
+            <input type="hidden" name="_method" value="put" />
+            <label for="price">Изменить цену</label>
+            <input type="text" name="price" id="price" value="{{ food.price }}" />
+            <input type="submit" />
+        </form>
+    </div>
 </body>
 </html>
