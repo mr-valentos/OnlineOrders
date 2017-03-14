@@ -37,3 +37,6 @@ class Role(db.Model):
 
     def __repr__(self):
         return "%d/%s" % (self.id, self.name)
+
+    def __hash__(self):
+        return hash(self.name)
