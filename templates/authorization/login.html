@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+</head>
+<body>
+{% block content %}
+<h1>Sign In</h1>
+<form action="/login" method="post" name="login">
+    {{form.hidden_tag()}}
+    <p>
+        login:<br>
+        {{form.login}}<br>
+    </p>
+    <p>  Password:<br>
+        {{form.password}} </p>
+    <p><input type="submit" value="Sign In"></p>
+</form>
+{% endblock %}
+</body>
+</html>
