@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Order menu</title>
+</head>
+<body>
+<h3>New order</h3>
+  <div class="new_order">
+     <form method="post" action="/create_order">
+         <label for="address">Адрес</label>
+         <input type="text" name="name" id="address" />
+         <label for="time">Время</label>
+         <input type="datetime" name="name" id="time" />
+         <label for="user_id">user id</label>
+         <input type="text" name="name" id="user_id" value={{user.id}} />
+         <br/>
+         <p>
+         <input type="submit" />
+     </form>
+  </div>
+</body>
+</html>

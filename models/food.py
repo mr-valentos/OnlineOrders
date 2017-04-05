@@ -13,6 +13,7 @@ class Food(db.Model):
     category_id = db.Column(db.Integer, db.ForeignKey(Category.id))
     category = db.relationship("Category")
 
+
     def __init__(self, name, description, price, image, category_id):
         self.name = name
         self.description = description
@@ -20,6 +21,5 @@ class Food(db.Model):
         self.price = price
         self.category_id = category_id
 
-    def __repr__(self):
-       return 'name: ' + self.name + ' description:' + self.description
+
 

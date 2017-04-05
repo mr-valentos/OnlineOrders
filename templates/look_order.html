@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Look order</title>
+</head>
+<body>
+{{user.order}}
+<br/>
+{% for order in user.order %}
+ order id:  {{order.id}}
+{% endfor %}
+</body>
+</html>

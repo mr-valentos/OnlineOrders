@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <title>Categories</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 </head>
 <body>
+
 <p align="right">login as: {{user.login}}
     {% for role in user.roles %}
                 <br> user role: {{role.name}}
@@ -20,8 +22,41 @@
     <h2><p align="center">All menu</p></h2>
     <ul>
          {% for food in foods %}
-        <li>{{food}}</li>
+        <li>{{food.image}}
+            {{food.name}}
+        {{food.description}}
+        {{food.price}}
+            <button
+                    class="add_to_cart"
+                    data-food_id="{{food.id}}"
+            >+</button>
+        </li>
           {% endfor %}
      </ul>
 </body>
 </html>
+
+<script>
+ $(document).ready(function(){
+
+     $(".add_to_cart").click(function(){
+         var id = $(this).attr("data-food_id");
+
+         $.ajax({
+             url : '/add-to-cart',
+             type: "POST",
+             data: {food_id:id},
+             success: function(data){
+                 console.log(data);
+             },
+             error: function(error){
+                 console.log(error);
+                 alert(error.responseJSON);
+             }
+
+         });
+     });
+
+
+     });
+</script>

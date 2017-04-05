@@ -4,6 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_user, current_user, logout_user, login_required
 from flask_principal import Principal, Permission, RoleNeed, identity_changed, current_app, Identity, AnonymousIdentity, \
 identity_loaded, UserNeed
+from flask.ext.jsonpify import jsonify
 
 
 
@@ -15,6 +16,8 @@ db = SQLAlchemy(app)
 from models.category import Category
 from models.food import Food
 from models.user import User
+from models.food_order import FoodOrder
+from models.order import Order
 
 from forms import LoginForm
 
@@ -158,6 +161,53 @@ def edit_price(id):
     db.session.add(food)
     db.session.commit()
     return render_template('index.html', categories=Category.query.all(), foods=Food.query.all(), user=current_user)
+
+@app.route('/look_order', methods=['GET'])
+def look_order():
+
+    return render_template('look_order.html', user=current_user, order=Order.query.all())
+
+@app.route('/order', methods=['GET'])
+def order():
+
+    return render_template('order.html', user=current_user, order=Order.query.all())
+
+
+@app.route('/create_order', methods=['POST'])
+def create_order():
+    from models.order import Order
+
+    order = Order(request.form['address'], request.form['user_id'], request.form['created_at'], request.form['time'])
+    db.session.add(order)
+    db.session.commit()
+    return render_template('look_order.html', user=current_user, order=Order.query.all())
+
+
+@app.route('/add-to-cart', methods=['POST'])
+def add_to_cart():
+    from models.food_order import FoodOrder
+    from models.order import Order
+
+    user=current_user
+
+    for order in user.order:
+        ord_id=order.id
+
+    id = request.form['food_id']
+    food = Food.query.get(id)
+
+    if food:
+        #логика добавления товара в корзину
+        food_order=FoodOrder(order_id=ord_id, food_id=food.id, count=1, price=food.price)
+        db.session.add(food_order)
+        db.session.commit()
+        return jsonify(food.name)
+    else:
+        requestJson =jsonify("Ошибка! Блюдо не найдено")
+        requestJson.status_code = 401
+        return requestJson
+
+
 
 if __name__ == '__main__':
     app.run()
