@@ -20,10 +20,11 @@ def upgrade():
     op.create_table(
         'orders',
         sa.Column('id', sa.Integer, primary_key=True),
-        sa.Column('address', sa.String(50), nullable=False),
-        sa.Column('created_at', sa.TIMESTAMP),
+        sa.Column('address', sa.String(50)),
+        sa.Column('created_at', sa.DateTime),
         sa.Column('time', sa.DateTime),
-        sa.Column('user_id', sa.Integer, sa.ForeignKey("user.id"))
+        sa.Column('user_id', sa.Integer, sa.ForeignKey("user.id")),
+        sa.Column('status', sa.String(255), nullable=False)
     )
 
 

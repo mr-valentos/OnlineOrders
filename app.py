@@ -187,18 +187,32 @@ def create_order():
 def add_to_cart():
     from models.food_order import FoodOrder
     from models.order import Order
+    from datetime import datetime
 
-    user=current_user
+    user = current_user
+    date1= datetime(2012, 3, 3, 10, 10, 10)
+    date2= datetime(2012, 3, 3, 10, 10, 10)
 
-    for order in user.order:
-        ord_id=order.id
+
+ #   order = db.session.query(Order).filter(
+  #      Order.user_id == current_user.id,
+  #      Order.status == 'pending'
+   # )
+
+    order = Order.query.filter_by(user_id=current_user.id, status='pending').first()
+
+    if not order:
+        new_order = Order(user_id=current_user.id, status='pending', created_at=date1, address='www', time=date2)
+        db.session.add(new_order)
+        db.session.commit()
 
     id = request.form['food_id']
     food = Food.query.get(id)
+    order = Order.query.filter_by(user_id=current_user.id, status='pending').first()
 
     if food:
         #логика добавления товара в корзину
-        food_order=FoodOrder(order_id=ord_id, food_id=food.id, count=1, price=food.price)
+        food_order=FoodOrder(order_id=order.id, food_id=food.id, count=1, price=food.price)
         db.session.add(food_order)
         db.session.commit()
         return jsonify(food.name)
@@ -207,6 +221,19 @@ def add_to_cart():
         requestJson.status_code = 401
         return requestJson
 
+
+@app.route('/cart', methods=['GET'])
+def cart():
+    from models.food_order import FoodOrder
+
+
+    if not current_user:
+        return render_template('index.html', categories=Category.query.all(), foods=Food.query.all(), user=current_user)
+        #redirect to home
+
+
+
+    return render_template('cart.html', id=FoodOrder.query.all(), order=Order.query.all())
 
 
 if __name__ == '__main__':
