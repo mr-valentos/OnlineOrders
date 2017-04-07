@@ -164,13 +164,22 @@ def edit_price(id):
 
 @app.route('/look_order', methods=['GET'])
 def look_order():
+    from models.order import Order
+    from models.food_order import FoodOrder
 
-    return render_template('look_order.html', user=current_user, order=Order.query.all())
+    #orde = Order.query.filter_by(user_id=current_user.id, status='pending').first()
+
+    #if order:
+        #food_order=FoodOrder.query.filter_by(order_id=order.id).all()
+
+
+    return render_template('look_order.html', user=current_user, \
+                           food_orders=FoodOrder.query.all(), orders=Order.query.all())
 
 @app.route('/order', methods=['GET'])
 def order():
 
-    return render_template('order.html', user=current_user, order=Order.query.all())
+        return render_template('order.html', user=current_user, order=Order.query.all())
 
 
 @app.route('/create_order', methods=['POST'])
@@ -189,7 +198,6 @@ def add_to_cart():
     from models.order import Order
     from datetime import datetime
 
-    user = current_user
     date1= datetime(2012, 3, 3, 10, 10, 10)
     date2= datetime(2012, 3, 3, 10, 10, 10)
 
@@ -202,13 +210,13 @@ def add_to_cart():
     order = Order.query.filter_by(user_id=current_user.id, status='pending').first()
 
     if not order:
-        new_order = Order(user_id=current_user.id, status='pending', created_at=date1, address='www', time=date2)
-        db.session.add(new_order)
+        order = Order(user_id=current_user.id, status='pending', created_at=date1, address='www', time=date2)
+        db.session.add(order)
         db.session.commit()
 
     id = request.form['food_id']
     food = Food.query.get(id)
-    order = Order.query.filter_by(user_id=current_user.id, status='pending').first()
+    #order = Order.query.filter_by(user_id=current_user.id, status='pending').first()
 
     if food:
         #логика добавления товара в корзину

@@ -20,10 +20,3 @@ class FoodOrder(db.Model):
         self.food_id = food_id
         self.count = count
         self.price = price
-
-
-    def __repr__(self):
-       return 'order_id: ' + self.order_id + ' food_id:' + self.food_id + ' count:' + self.count + 'price:' + self.price
-
-    def prices(self):
-        return self.count * self.price

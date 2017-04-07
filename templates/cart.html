@@ -6,12 +6,8 @@
 </head>
 <body>
 <ul>
-         {% for food_order in food_orders %}
-        <li>{{food_orders.image}}
-            {{food_orders.name}}
-        {{food_orders.description}}
-        {{food_orders.price}}
-        {{food_orders.count * food_orders.price}}
+         {% for food_id in food_orders.food_id %}
+        <li>{{food.price}}
             <button
                     class="add_to_cart"
                     data-food_id="{{food.id}}"
