@@ -167,14 +167,14 @@ def look_order():
     from models.order import Order
     from models.food_order import FoodOrder
 
-    #orde = Order.query.filter_by(user_id=current_user.id, status='pending').first()
+    order=Order.query.filter_by(user_id=current_user.id, status='pending').first()
+    id=order.id
 
-    #if order:
-        #food_order=FoodOrder.query.filter_by(order_id=order.id).all()
+    if order:
+        food_order=FoodOrder.query.filter_by(order_id=id).all()
 
 
-    return render_template('look_order.html', user=current_user, \
-                           food_orders=FoodOrder.query.all(), orders=Order.query.all())
+    return render_template('look_order.html', user=current_user, food_orders=food_order, orders=Order.query.all())
 
 @app.route('/order', methods=['GET'])
 def order():
