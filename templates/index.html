@@ -7,17 +7,19 @@
 </head>
 <body>
 
-<p align="right">login as: {{user.login}}
+<p align="right"><a href="/cart"> Корзина </a>login as: {{user.login}}
     {% for role in user.roles %}
                 <br> user role: {{role.name}}
             {% endfor %}</p>
 <p align="right"> <a href="/login">login</a> <a href="/logout">logout</a></p>
+{% if admin%}
     <h3>Категории</h3>
     <p><a href="/category/new">Добавить катекорию</a></p>
     <ul>
         {% for category in categories %}
                 <li class="title"><a href="{{url_for('category', id=category.id)}}">{{ category.name }}</a></li>
         {% endfor %}
+        {%endif%}
     </ul>
     <h2><p align="center">All menu</p></h2>
     <ul>

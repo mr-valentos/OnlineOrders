@@ -87,8 +87,9 @@ def logout():
 
 @app.route('/', methods=['GET'])
 def index():
+    return render_template('index.html', categories=Category.query.all(), foods=Food.query.all(), user=current_user,\
+                           admin=admin_permission)
 
-    return render_template('index.html', categories=Category.query.all(), foods=Food.query.all(), user=current_user)
 
 @app.route('/admin/users', methods=['GET'])
 def users():
@@ -107,12 +108,13 @@ def create_category():
     category = Category(request.form['name'])
     db.session.add(category)
     db.session.commit()
-    return render_template('index.html', categories=Category.query.all(), foods=Food.query.all(), user=current_user)
+    return render_template('index.html', categories=Category.query.all(), foods=Food.query.all(), user=current_user, \
+                           admin=admin_permission)
 
 @app.route('/category/<id>', methods=['GET'])
 def category(id):
 
-    return render_template('category.html', category=Category.query.get(id))
+    return render_template('category.html', category=Category.query.get(id), foods=Food.query.all())
 
 @app.route('/posts/<id>/delete', methods=['GET'])
 def delete_category(id):
@@ -121,12 +123,13 @@ def delete_category(id):
     category = Category.query.get(id)
     db.session.delete(category)
     db.session.commit()
-    return render_template('index.html', categories=Category.query.all(), foods=Food.query.all(), user=current_user)
+    return render_template('index.html', categories=Category.query.all(), foods=Food.query.all(), user=current_user, \
+                           admin=admin_permission)
 
-@app.route('/new_food', methods=['GET'])
-def new_food():
+@app.route('/new_food/<id>', methods=['GET'])
+def new_food(id):
     with admin_permission.require():
-        return render_template('newfood.html')
+        return render_template('newfood.html', category=Category.query.get(id))
 
 @app.route('/create_food', methods=['POST'])
 def create_food():
@@ -136,7 +139,8 @@ def create_food():
                 request.form['category_id'])
     db.session.add(food)
     db.session.commit()
-    return render_template('index.html', categories=Category.query.all(), foods=Food.query.all(), user=current_user)
+    return render_template('index.html', categories=Category.query.all(), foods=Food.query.all(), user=current_user, \
+                           admin=admin_permission)
 
 @app.route('/food/<id>', methods=['GET'])
 def food(id):
@@ -150,7 +154,8 @@ def delete_food(id):
     food = Food.query.get(id)
     db.session.delete(food)
     db.session.commit()
-    return render_template('index.html', categories=Category.query.all(), foods=Food.query.all(), user=current_user)
+    return render_template('index.html', categories=Category.query.all(), foods=Food.query.all(), user=current_user, \
+                           admin=admin_permission)
 
 @app.route('/food/<id>/edit', methods=['POST'])
 def edit_price(id):
@@ -160,21 +165,9 @@ def edit_price(id):
     food.price = request.form['price']
     db.session.add(food)
     db.session.commit()
-    return render_template('index.html', categories=Category.query.all(), foods=Food.query.all(), user=current_user)
+    return render_template('index.html', categories=Category.query.all(), foods=Food.query.all(), user=current_user, \
+                           admin=admin_permission)
 
-@app.route('/look_order', methods=['GET'])
-def look_order():
-    from models.order import Order
-    from models.food_order import FoodOrder
-
-    order=Order.query.filter_by(user_id=current_user.id, status='pending').first()
-    id=order.id
-
-    if order:
-        food_order=FoodOrder.query.filter_by(order_id=id).all()
-
-
-    return render_template('look_order.html', user=current_user, food_orders=food_order, orders=Order.query.all())
 
 @app.route('/order', methods=['GET'])
 def order():
@@ -182,14 +175,14 @@ def order():
         return render_template('order.html', user=current_user, order=Order.query.all())
 
 
-@app.route('/create_order', methods=['POST'])
+'''@app.route('/create_order', methods=['POST'])
 def create_order():
     from models.order import Order
 
     order = Order(request.form['address'], request.form['user_id'], request.form['created_at'], request.form['time'])
     db.session.add(order)
     db.session.commit()
-    return render_template('look_order.html', user=current_user, order=Order.query.all())
+    return render_template('look_order.html', user=current_user, order=Order.query.all())'''
 
 
 @app.route('/add-to-cart', methods=['POST'])
@@ -236,12 +229,48 @@ def cart():
 
 
     if not current_user:
-        return render_template('index.html', categories=Category.query.all(), foods=Food.query.all(), user=current_user)
+        return render_template('index.html', categories=Category.query.all(), foods=Food.query.all(), user=current_user, \
+                               admin=admin_permission)
         #redirect to home
 
+    order=Order.query.filter_by(user_id=current_user.id, status='pending').first()
+    id=order.id
 
 
-    return render_template('cart.html', id=FoodOrder.query.all(), order=Order.query.all())
+    if order:
+        food_order=FoodOrder.query.filter_by(order_id=id).all()
+
+
+    return render_template('cart.html', user=current_user, food_orders=food_order)
+
+
+@app.route('/cart_count', methods=['POST'])
+def cart_count():
+    from app import db
+
+    food_order = FoodOrder.query.get(request.form['id'])
+
+    if food_order:
+        food_order.count = request.form['count_minus']
+        db.session.add(food_order)
+        db.session.commit()
+    return jsonify(food_order=food_order.count)
+
+@app.route('/cart_count_plus', methods=['POST'])
+def cart_count_plus():
+    from app import db
+
+    food_order = FoodOrder.query.get(request.form['id'])
+
+    if food_order:
+        food_order.count = request.form['count_plus']
+        db.session.add(food_order)
+        db.session.commit()
+    return jsonify(food_order.count)
+
+@app.route('/count', methods=['POST'])
+def count():
+    return render_template('count.html', food_order=FoodOrder)
 
 
 if __name__ == '__main__':
