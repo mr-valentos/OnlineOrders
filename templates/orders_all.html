@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Orders</title>
+</head>
+<body>
+<ul>
+    {%for order in orders%}
+   <li><a href="{{url_for('edit_order', id=order.id)}}">
+       {{order.address}}
+       {{order.status}}
+       {{order.user.login}}</a>
+    {%endfor%}
+</ul>
+</body>
+</html>

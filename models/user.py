@@ -18,13 +18,15 @@ class User(UserMixin, db.Model):
     roles = db.relationship("Role", secondary=association_table)
     order = db.relationship("Order")
 
-    def __init__(self, login, password, phone):
+    def __init__(self, login, email, phone, password):
         self.login = login
-        self.password = password
+        self.email = email
         self.phone = phone
+        self.password = password
 
-    def __repr__(self):
-        return "%d/%s/%s" % (self.id, self.login, self.phone)
+
+    def is_authenticated(self):
+        return True
 
 
 class Role(db.Model):

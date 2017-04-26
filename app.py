@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, request, redirect, session, Response
+from flask import Flask, render_template, request, redirect, session, Response, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_user, current_user, logout_user, login_required
 from flask_principal import Principal, Permission, RoleNeed, identity_changed, current_app, Identity, AnonymousIdentity, \
@@ -15,7 +15,7 @@ db = SQLAlchemy(app)
 
 from models.category import Category
 from models.food import Food
-from models.user import User
+from models.user import User, Role
 from models.food_order import FoodOrder
 from models.order import Order
 
@@ -85,11 +85,32 @@ def logout():
 
     return redirect(request.args.get('next') or '/')
 
+@app.route('/registration', methods=['GET'])
+def registration():
+    return render_template('authorization/registration.html')
+
+@app.route('/new_user', methods=['POST'])
+def new_user():
+    form = LoginForm()
+    if request.form['password'] == request.form['password2']:
+        user = User(request.form['login'], request.form['email'], request.form['phone'], request.form['password'])
+        db.session.add(user)
+        db.session.commit()
+        return render_template('authorization/login.html', form=form, current_user=current_user)
+    flash('Введен не верный пароль')
+    return render_template('authorization/registration.html')
+
+
 @app.route('/', methods=['GET'])
 def index():
     return render_template('index.html', categories=Category.query.all(), foods=Food.query.all(), user=current_user,\
                            admin=admin_permission)
 
+@app.route('/index_id/<id>', methods=['GET'])
+def index_id(id):
+    category = Category.query.get(id)
+    return render_template('index.html', categories=Category.query.all(), foods=category.food, user=current_user,\
+                           admin=admin_permission, )
 
 @app.route('/admin/users', methods=['GET'])
 def users():
@@ -172,17 +193,21 @@ def edit_price(id):
 @app.route('/order', methods=['GET'])
 def order():
 
-        return render_template('order.html', user=current_user, order=Order.query.all())
 
 
-'''@app.route('/create_order', methods=['POST'])
+    return render_template('order.html', user=current_user, order=order)
+
+
+@app.route('/create_order', methods=['POST'])
 def create_order():
-    from models.order import Order
+    order = Order.query.filter_by(user_id=current_user.id, status='pending').first()
+    order.address= request.form['address']
+    order.status='done'
 
-    order = Order(request.form['address'], request.form['user_id'], request.form['created_at'], request.form['time'])
     db.session.add(order)
     db.session.commit()
-    return render_template('look_order.html', user=current_user, order=Order.query.all())'''
+    return render_template('index.html', categories=Category.query.all(), foods=Food.query.all(), user=current_user, \
+                           admin=admin_permission)
 
 
 @app.route('/add-to-cart', methods=['POST'])
@@ -191,28 +216,23 @@ def add_to_cart():
     from models.order import Order
     from datetime import datetime
 
-    date1= datetime(2012, 3, 3, 10, 10, 10)
-    date2= datetime(2012, 3, 3, 10, 10, 10)
+    date_create_order= datetime.now()
+    time_order= datetime(2012, 3, 3, 10, 10, 10)
 
-
- #   order = db.session.query(Order).filter(
-  #      Order.user_id == current_user.id,
-  #      Order.status == 'pending'
-   # )
 
     order = Order.query.filter_by(user_id=current_user.id, status='pending').first()
 
     if not order:
-        order = Order(user_id=current_user.id, status='pending', created_at=date1, address='www', time=date2)
+        order = Order(user_id=current_user.id, status='pending', created_at=date_create_order, address='www', time=time_order)
         db.session.add(order)
         db.session.commit()
 
     id = request.form['food_id']
     food = Food.query.get(id)
-    #order = Order.query.filter_by(user_id=current_user.id, status='pending').first()
+
 
     if food:
-        #логика добавления товара в корзину
+        #logic- add dish to cart
         food_order=FoodOrder(order_id=order.id, food_id=food.id, count=1, price=food.price)
         db.session.add(food_order)
         db.session.commit()
@@ -226,26 +246,20 @@ def add_to_cart():
 @app.route('/cart', methods=['GET'])
 def cart():
     from models.food_order import FoodOrder
-
-
-    if not current_user:
-        return render_template('index.html', categories=Category.query.all(), foods=Food.query.all(), user=current_user, \
-                               admin=admin_permission)
         #redirect to home
 
     order=Order.query.filter_by(user_id=current_user.id, status='pending').first()
-    id=order.id
+
+    if not order:
+        return render_template('index.html', categories=Category.query.all(), foods=Food.query.all(), user=current_user, \
+                               admin=admin_permission)
+    id = order.id
+    food_order=FoodOrder.query.filter_by(order_id=id).all()
+    return render_template('cart.html', user=current_user, food_orders=food_order, order=order.id, admin=admin_permission)
 
 
-    if order:
-        food_order=FoodOrder.query.filter_by(order_id=id).all()
-
-
-    return render_template('cart.html', user=current_user, food_orders=food_order)
-
-
-@app.route('/cart_count', methods=['POST'])
-def cart_count():
+@app.route('/cart_count_minus', methods=['POST'])
+def cart_count_minus():
     from app import db
 
     food_order = FoodOrder.query.get(request.form['id'])
@@ -254,7 +268,7 @@ def cart_count():
         food_order.count = request.form['count_minus']
         db.session.add(food_order)
         db.session.commit()
-    return jsonify(food_order=food_order.count)
+    return jsonify(count=food_order.count)
 
 @app.route('/cart_count_plus', methods=['POST'])
 def cart_count_plus():
@@ -266,12 +280,24 @@ def cart_count_plus():
         food_order.count = request.form['count_plus']
         db.session.add(food_order)
         db.session.commit()
-    return jsonify(food_order.count)
+    return jsonify(count=food_order.count)
 
-@app.route('/count', methods=['POST'])
-def count():
-    return render_template('count.html', food_order=FoodOrder)
+@app.route('/orders', methods=['GET'])
+def orders():
 
+    return render_template('orders_all.html', user=current_user, orders=Order.query.all())
+
+@app.route('/edit_order/<id>', methods=['GET'])
+def edit_order(id):
+    return render_template('cart.html', user=current_user, food_orders=FoodOrder.query.filter_by(order_id=id).all(),\
+                           order=Order.query.get(id), admin=admin_permission)
+
+@app.route('/delete_order/<id>', methods=['GET'])
+def delete_order(id):
+    order = Order.query.get(id)
+    db.session.delete(order)
+    db.session.commit()
+    return render_template('orders_all.html', user=current_user, orders=Order.query.all())
 
 if __name__ == '__main__':
     app.run()
