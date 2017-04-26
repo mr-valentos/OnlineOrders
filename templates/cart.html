@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Look order</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+</head>
+<body>
+
+    Ваш заказ {{user.login}}
+    {%if admin%}
+    <a href="{{url_for('delete_order', id=order.id)}}">Удалить даный заказ</a></li>
+    {%endif%}
+    <ul>
+    {%for food_order in food_orders%}
+    <li>Блюдо: {{food_order.food.name}}
+        <br>Кол.порций:
+        <div class="number">
+                    <button class="minus" data-id="{{food_order.id}}">-</button>
+                    <input class="mycount" type="text" value="{{food_order.count}}" size="2" data-count="value"/>
+                    <button class="plus" data-id="{{food_order.id}}">+</button><br>
+                    <input type="hidden" value="{{food_order.price * food_order.count}}" class="price" />
+                    <input type="hidden" value="{{food_order.price}}" class="price_const" data-price="value"/>
+                    <h4>Цена <h class="prc">{{food_order.price * food_order.count}}</h></h4>
+        </div>
+        <p>
+    {%endfor%}
+    </ul>
+        <h3>
+        Сумма <h class="all" ></h> <input type="button" value="Оформить заказ"
+                                          onClick='location.href="/order"'>
+        </h3>
+</body>
+</html>
+
+<script>
+$(document).ready(function () {
+
+
+})
+</script>
+<script type="text/javascript" >
+        $(document).ready(function() {
+            var total=0;
+            $('input.price').each(function () {
+                total += parseInt($(this).val());
+                });
+                $('.all').html(total);
+
+            $('.minus').click(function () {
+                var id = $(this).attr("data-id");
+                var $input = $(this).parent().find('input.mycount');
+                var $input_price = $(this).parent().find('input.price');
+                var $input_pc = $(this).parent().find('input.price_const');
+                var $h_prc= $(this).parent().find('h.prc');
+                var count = parseInt($input.val()) - 1;
+                count = count < 1 ? 1 : count;
+                $input.val(count);
+                $input.change();
+                $input_price.val(parseInt($input.val()) * parseInt($input_pc.val()));
+                $input_price.change();
+                $h_prc.html($input_price.val());
+
+                $.ajax({
+                    url : '/cart_count_minus',
+                    type: "POST",
+                    data: {count_minus:$input.val(), id:id},
+                    success: function(data){
+                    console.log(data);
+
+                    },
+                    error: function(error){
+                    console.log(error);
+                    alert(error.responseJSON);
+                    }
+
+                 });
+            });
+            $('.plus').click(function () {
+                var id = $(this).attr("data-id");
+                var $input = $(this).parent().find('input.mycount');
+                var $input_price = $(this).parent().find('input.price');
+                var $input_pc = $(this).parent().find('input.price_const');
+                var $h_prc= $(this).parent().find('h.prc');
+                $input.val(parseInt($input.val()) + 1);
+                $input.change();
+                $input_price.val(parseInt($input.val()) * parseInt($input_pc.val()));
+                $input_price.change();
+                $h_prc.html($input_price.val());
+
+                $.ajax({
+                    url : '/cart_count_plus',
+                    type: "POST",
+                    data: {count_plus:$input.val(), id:id},
+                    success: function(data){
+                        console.log(data);
+                    },
+                    error: function(error){
+                    console.log(error);
+                    alert(error.responseJSON);
+                }
+
+         });
+            });
+            $('.minus').click(function () {
+                var total=0;
+                $('input.price').each(function () {
+                 total += parseInt($(this).val());
+                });
+                $('.all').html(total);
+            });
+            $('.plus').click(function () {
+                var total=0;
+                $('input.price').each(function () {
+                 total += parseInt($(this).val());
+                });
+                $('.all').html(total);
+            });
+        });
+</script>
+
+<!--<script>
+ $(document).ready(function(){
+
+
+     $(".count_minus").click(function(){
+         var minus = $(this).attr("data-minus");
+         var id = $(this).attr("data-food_order_id");
+
+         $.ajax({
+             url : '/cart_count_minus',
+             type: "POST",
+             data: {count_minus:minus, id:id},
+             success: function(data){
+                 console.log(data);
+
+             },
+             error: function(error){
+                 console.log(error);
+                 alert(error.responseJSON);
+             }
+
+         });
+     });
+
+
+     $(".count_plus").click(function(){
+         var plus = $(this).attr("data-plus");
+         var id = $(this).attr("data-food_order_id");
+
+         $.ajax({
+             url : '/cart_count_plus',
+             type: "POST",
+             data: {count_plus:plus, id:id},
+             success: function(data){
+                 console.log(data);
+             },
+             error: function(error){
+                 console.log(error);
+                 alert(error.responseJSON);
+             }
+
+         });
+     });
+
+
+     });
+</script>-->

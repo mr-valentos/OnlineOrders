@@ -1,9 +1,10 @@
 import os
-from flask import Flask, render_template, request, redirect, session, Response
+from flask import Flask, render_template, request, redirect, session, Response, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_user, current_user, logout_user, login_required
 from flask_principal import Principal, Permission, RoleNeed, identity_changed, current_app, Identity, AnonymousIdentity, \
 identity_loaded, UserNeed
+from flask.ext.jsonpify import jsonify
 
 
 
@@ -14,7 +15,9 @@ db = SQLAlchemy(app)
 
 from models.category import Category
 from models.food import Food
-from models.user import User
+from models.user import User, Role
+from models.food_order import FoodOrder
+from models.order import Order
 
 from forms import LoginForm
 
@@ -82,10 +85,32 @@ def logout():
 
     return redirect(request.args.get('next') or '/')
 
+@app.route('/registration', methods=['GET'])
+def registration():
+    return render_template('authorization/registration.html')
+
+@app.route('/new_user', methods=['POST'])
+def new_user():
+    form = LoginForm()
+    if request.form['password'] == request.form['password2']:
+        user = User(request.form['login'], request.form['email'], request.form['phone'], request.form['password'])
+        db.session.add(user)
+        db.session.commit()
+        return render_template('authorization/login.html', form=form, current_user=current_user)
+    flash('Введен не верный пароль')
+    return render_template('authorization/registration.html')
+
+
 @app.route('/', methods=['GET'])
 def index():
+    return render_template('index.html', categories=Category.query.all(), foods=Food.query.all(), user=current_user,\
+                           admin=admin_permission)
 
-    return render_template('index.html', categories=Category.query.all(), foods=Food.query.all(), user=current_user)
+@app.route('/index_id/<id>', methods=['GET'])
+def index_id(id):
+    category = Category.query.get(id)
+    return render_template('index.html', categories=Category.query.all(), foods=category.food, user=current_user,\
+                           admin=admin_permission, )
 
 @app.route('/admin/users', methods=['GET'])
 def users():
@@ -104,12 +129,13 @@ def create_category():
     category = Category(request.form['name'])
     db.session.add(category)
     db.session.commit()
-    return render_template('index.html', categories=Category.query.all(), foods=Food.query.all(), user=current_user)
+    return render_template('index.html', categories=Category.query.all(), foods=Food.query.all(), user=current_user, \
+                           admin=admin_permission)
 
 @app.route('/category/<id>', methods=['GET'])
 def category(id):
 
-    return render_template('category.html', category=Category.query.get(id))
+    return render_template('category.html', category=Category.query.get(id), foods=Food.query.all())
 
 @app.route('/posts/<id>/delete', methods=['GET'])
 def delete_category(id):
@@ -118,12 +144,13 @@ def delete_category(id):
     category = Category.query.get(id)
     db.session.delete(category)
     db.session.commit()
-    return render_template('index.html', categories=Category.query.all(), foods=Food.query.all(), user=current_user)
+    return render_template('index.html', categories=Category.query.all(), foods=Food.query.all(), user=current_user, \
+                           admin=admin_permission)
 
-@app.route('/new_food', methods=['GET'])
-def new_food():
+@app.route('/new_food/<id>', methods=['GET'])
+def new_food(id):
     with admin_permission.require():
-        return render_template('newfood.html')
+        return render_template('newfood.html', category=Category.query.get(id))
 
 @app.route('/create_food', methods=['POST'])
 def create_food():
@@ -133,7 +160,8 @@ def create_food():
                 request.form['category_id'])
     db.session.add(food)
     db.session.commit()
-    return render_template('index.html', categories=Category.query.all(), foods=Food.query.all(), user=current_user)
+    return render_template('index.html', categories=Category.query.all(), foods=Food.query.all(), user=current_user, \
+                           admin=admin_permission)
 
 @app.route('/food/<id>', methods=['GET'])
 def food(id):
@@ -147,7 +175,8 @@ def delete_food(id):
     food = Food.query.get(id)
     db.session.delete(food)
     db.session.commit()
-    return render_template('index.html', categories=Category.query.all(), foods=Food.query.all(), user=current_user)
+    return render_template('index.html', categories=Category.query.all(), foods=Food.query.all(), user=current_user, \
+                           admin=admin_permission)
 
 @app.route('/food/<id>/edit', methods=['POST'])
 def edit_price(id):
@@ -157,7 +186,118 @@ def edit_price(id):
     food.price = request.form['price']
     db.session.add(food)
     db.session.commit()
-    return render_template('index.html', categories=Category.query.all(), foods=Food.query.all(), user=current_user)
+    return render_template('index.html', categories=Category.query.all(), foods=Food.query.all(), user=current_user, \
+                           admin=admin_permission)
+
+
+@app.route('/order', methods=['GET'])
+def order():
+
+
+
+    return render_template('order.html', user=current_user, order=order)
+
+
+@app.route('/create_order', methods=['POST'])
+def create_order():
+    order = Order.query.filter_by(user_id=current_user.id, status='pending').first()
+    order.address= request.form['address']
+    order.status='done'
+
+    db.session.add(order)
+    db.session.commit()
+    return render_template('index.html', categories=Category.query.all(), foods=Food.query.all(), user=current_user, \
+                           admin=admin_permission)
+
+
+@app.route('/add-to-cart', methods=['POST'])
+def add_to_cart():
+    from models.food_order import FoodOrder
+    from models.order import Order
+    from datetime import datetime
+
+    date_create_order= datetime.now()
+    time_order= datetime(2012, 3, 3, 10, 10, 10)
+
+
+    order = Order.query.filter_by(user_id=current_user.id, status='pending').first()
+
+    if not order:
+        order = Order(user_id=current_user.id, status='pending', created_at=date_create_order, address='www', time=time_order)
+        db.session.add(order)
+        db.session.commit()
+
+    id = request.form['food_id']
+    food = Food.query.get(id)
+
+
+    if food:
+        #logic- add dish to cart
+        food_order=FoodOrder(order_id=order.id, food_id=food.id, count=1, price=food.price)
+        db.session.add(food_order)
+        db.session.commit()
+        return jsonify(food.name)
+    else:
+        requestJson =jsonify("Ошибка! Блюдо не найдено")
+        requestJson.status_code = 401
+        return requestJson
+
+
+@app.route('/cart', methods=['GET'])
+def cart():
+    from models.food_order import FoodOrder
+        #redirect to home
+
+    order=Order.query.filter_by(user_id=current_user.id, status='pending').first()
+
+    if not order:
+        return render_template('index.html', categories=Category.query.all(), foods=Food.query.all(), user=current_user, \
+                               admin=admin_permission)
+    id = order.id
+    food_order=FoodOrder.query.filter_by(order_id=id).all()
+    return render_template('cart.html', user=current_user, food_orders=food_order, order=order.id, admin=admin_permission)
+
+
+@app.route('/cart_count_minus', methods=['POST'])
+def cart_count_minus():
+    from app import db
+
+    food_order = FoodOrder.query.get(request.form['id'])
+
+    if food_order:
+        food_order.count = request.form['count_minus']
+        db.session.add(food_order)
+        db.session.commit()
+    return jsonify(count=food_order.count)
+
+@app.route('/cart_count_plus', methods=['POST'])
+def cart_count_plus():
+    from app import db
+
+    food_order = FoodOrder.query.get(request.form['id'])
+
+    if food_order:
+        food_order.count = request.form['count_plus']
+        db.session.add(food_order)
+        db.session.commit()
+    return jsonify(count=food_order.count)
+
+@app.route('/orders', methods=['GET'])
+def orders():
+
+    return render_template('orders_all.html', user=current_user, orders=Order.query.all())
+
+@app.route('/edit_order/<id>', methods=['GET'])
+def edit_order(id):
+    return render_template('cart.html', user=current_user, food_orders=FoodOrder.query.filter_by(order_id=id).all(),\
+                           order=Order.query.get(id), admin=admin_permission)
+
+@app.route('/delete_order/<id>', methods=['GET'])
+def delete_order(id):
+    order = Order.query.get(id)
+    db.session.delete(order)
+    db.session.commit()
+    return render_template('orders_all.html', user=current_user, orders=Order.query.all())
 
 if __name__ == '__main__':
     app.run()

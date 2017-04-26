@@ -3,25 +3,95 @@
 <head>
     <meta charset="UTF-8">
     <title>Categories</title>
+<style>
+    #menu {
+        margin: 0; /* убрать внутренние отступы */
+        padding: 0; /* убрать внешние отступы */
+    }
+    #menu {
+        background: #03658e; /* цвет фона навигационной панели */
+    }
+    #menu {
+        display:inline-block; /* расположить пункты горизонтально */
+        text-align: center; /* текст горизонтально по центру */
+    }
+    #menu a {
+        display: block; /* ссылка растягивается на весь пункт li */
+        padding: 5px 15px; /* задаем внутренние отступы */
+        color: #fff; /* цвет текста */
+        text-decoration: none; /* убрать нижнее подчёркивание у ссылок */
+    }
+    #menu a:hover {
+        background: #8AB8CC; /* фон пунктов при наведении */
+    }
+</style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 </head>
 <body>
-<p align="right">login as: {{user.login}}
+{%if not user.login%}
+    <h2><p align="center"><a href="/registration">Зарегестрируйтесь что бы сделать заказ</a></p></h2>
+{%endif%}
+<p align="right"><a href="/cart"> Корзина </a>login as: {{user.login}}
     {% for role in user.roles %}
                 <br> user role: {{role.name}}
-            {% endfor %}</p>
+    {% endfor %}</p>
 <p align="right"> <a href="/login">login</a> <a href="/logout">logout</a></p>
+{% if admin%}
+    <p><a href="/orders">Все заказы</a></p>
+    <p><a href="/category/new">Добавить категорию</a></p>
     <h3>Категории</h3>
-    <p><a href="/category/new">Добавить катекорию</a></p>
     <ul>
         {% for category in categories %}
                 <li class="title"><a href="{{url_for('category', id=category.id)}}">{{ category.name }}</a></li>
         {% endfor %}
     </ul>
-    <h2><p align="center">All menu</p></h2>
+{%endif%}
+
+<h2><p align="center"><a href="/">All menu</a></p></h2>
+        {% for category in categories %}
+    <ul id="menu"><a href="{{url_for('index_id', id=category.id)}}">
+        <li>{{ category.name }}</li></a>
+    </ul>
+        {% endfor %}
     <ul>
          {% for food in foods %}
-        <li>{{food}}</li>
+        <li>{{food.image}}
+            {{food.name}}
+        {{food.description}}
+        {{food.price}}
+            {% if user.login %}
+            <button
+                    class="add_to_cart"
+                    data-food_id="{{food.id}}"
+            >+</button>
+            {% endif %}
+        </li>
           {% endfor %}
      </ul>
 </body>
 </html>
+
+<script>
+ $(document).ready(function(){
+
+     $(".add_to_cart").click(function(){
+         var id = $(this).attr("data-food_id");
+
+         $.ajax({
+             url : '/add-to-cart',
+             type: "POST",
+             data: {food_id:id},
+             success: function(data){
+                 console.log(data);
+             },
+             error: function(error){
+                 console.log(error);
+                 alert(error.responseJSON);
+             }
+
+         });
+     });
+
+
+     });
+</script>

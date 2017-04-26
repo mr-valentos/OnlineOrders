@@ -5,7 +5,7 @@
     <title>Food</title>
 </head>
 <body>
-  <h3>{{food}}</h3>
+  <h3>{{food.name}}</h3>
     <ul class="actions">
         <li class="action" id="delete_food" onclick="return confirm('Delete this dish?');">
             <a href="{{url_for('delete_food', id=food.id)}}">Удалить</a></li>
