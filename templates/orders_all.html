@@ -8,9 +8,11 @@
 <ul>
     {%for order in orders%}
    <li><a href="{{url_for('edit_order', id=order.id)}}">
-       {{order.address}}
-       {{order.status}}
-       {{order.user.login}}</a>
+       <br><h>Адресс: {{order.address}}</h>
+       <br><h>На время: {{order.time}}</h>
+       <br><h>Клиент: {{order.user.login}} тел.({{order.user.phone}})</h>
+       <br><h>Статус: {{order.status}}</h>
+       </a>
     {%endfor%}
 </ul>
 </body>

@@ -18,10 +18,9 @@
          <input type="text" name="price" id="price" />
          <br />
          <label for="image">Картинка</label>
-         <input type="text" name="image" id="image" />
+         <input type="file" name="image" id="image" />
          <br />
-         <label for="category_id">Категория</label>
-         <input type="text" name="category_id" id="category_id" value="{{category.id}}"/>
+         <input type="hidden" name="category_id" id="category_id" value="{{category.id}}"/>
          <br/>
          <p>
          <input type="submit" />

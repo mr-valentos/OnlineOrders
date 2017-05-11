@@ -7,7 +7,7 @@ class Order(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     address = db.Column(db.String(250))
-    time = db.Column(db.DateTime)
+    time = db.Column(db.String)
     created_at = db.Column(db.DateTime)
     status = db.Column(db.String, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey(User.id))
@@ -25,3 +25,10 @@ class Order(db.Model):
     def __repr__(self):
        return 'address: ' + self.address
 
+    def new_order(self, order):
+        db.session.add(order)
+        db.session.commit()
+
+    def delete_order(self, order):
+        db.session.delete(order)
+        db.session.commit()

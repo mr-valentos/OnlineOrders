@@ -28,6 +28,9 @@ class User(UserMixin, db.Model):
     def is_authenticated(self):
         return True
 
+    def new_user(self, user):
+        db.session.add(user)
+        db.session.commit()
 
 class Role(db.Model):
     __tablename__ = 'roles'

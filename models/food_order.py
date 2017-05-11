@@ -20,3 +20,7 @@ class FoodOrder(db.Model):
         self.food_id = food_id
         self.count = count
         self.price = price
+
+    def new_food_order(self, food_order):
+        db.session.add(food_order)
+        db.session.commit()
