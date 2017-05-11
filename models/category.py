@@ -13,3 +13,11 @@ class Category(db.Model):
 
     def __repr__(self):
         return 'name ' + self.name
+
+    def new_category(self, category):
+        db.session.add(category)
+        db.session.commit()
+
+    def delete_category(self, category):
+        db.session.delete(category)
+        db.session.commit()

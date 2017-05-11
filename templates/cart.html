@@ -3,6 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <title>Look order</title>
+    <style>
+        button {
+    display: inline-block;
+    margin: 5px;
+    padding: 2px 5px;
+    background: #87CEFA;
+    border: 1px solid rgba(0,0,0,0.15);
+    border-radius: 4px;
+    transition: all 0.3s ease-out;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.5),
+        0 2px 2px rgba(0,0,0,0.3),
+        0 0 4px 1px rgba(0,0,0,0.2);
+    /* Font styles */
+    text-decoration: none;
+    text-shadow: 0 1px rgba(255,255,255,0.7);
+}
+
+    button:hover {
+    background: #C7FE0A
+}
+    </style>
+     <style>
+        body {
+
+padding: 0;
+
+margin: 0;
+
+background: #D3D3D3 no-repeat center top;
+
+width: 100%;
+
+display: table;
+
+      }</style>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 </head>
 <body>
@@ -118,51 +154,3 @@ $(document).ready(function () {
             });
         });
 </script>
-
-<!--<script>
- $(document).ready(function(){
-
-
-     $(".count_minus").click(function(){
-         var minus = $(this).attr("data-minus");
-         var id = $(this).attr("data-food_order_id");
-
-         $.ajax({
-             url : '/cart_count_minus',
-             type: "POST",
-             data: {count_minus:minus, id:id},
-             success: function(data){
-                 console.log(data);
-
-             },
-             error: function(error){
-                 console.log(error);
-                 alert(error.responseJSON);
-             }
-
-         });
-     });
-
-
-     $(".count_plus").click(function(){
-         var plus = $(this).attr("data-plus");
-         var id = $(this).attr("data-food_order_id");
-
-         $.ajax({
-             url : '/cart_count_plus',
-             type: "POST",
-             data: {count_plus:plus, id:id},
-             success: function(data){
-                 console.log(data);
-             },
-             error: function(error){
-                 console.log(error);
-                 alert(error.responseJSON);
-             }
-
-         });
-     });
-
-
-     });
-</script>-->

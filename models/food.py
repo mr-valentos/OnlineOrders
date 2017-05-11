@@ -21,5 +21,10 @@ class Food(db.Model):
         self.price = price
         self.category_id = category_id
 
+    def new_food(self, food):
+        db.session.add(food)
+        db.session.commit()
 
-
+    def delete_food(self, food):
+        db.session.delete(food)
+        db.session.commit()

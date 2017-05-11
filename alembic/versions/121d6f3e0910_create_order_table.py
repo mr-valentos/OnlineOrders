@@ -22,7 +22,7 @@ def upgrade():
         sa.Column('id', sa.Integer, primary_key=True),
         sa.Column('address', sa.String(50)),
         sa.Column('created_at', sa.DateTime),
-        sa.Column('time', sa.DateTime),
+        sa.Column('time', sa.String),
         sa.Column('user_id', sa.Integer, sa.ForeignKey("user.id")),
         sa.Column('status', sa.String(255), nullable=False)
     )

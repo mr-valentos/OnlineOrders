@@ -2,8 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Categories</title>
-<style>
+    <title>Online order</title>
+    <style>
+         li {
+    list-style-type: none; /* Убираем маркеры */
+   }
     #menu {
         margin: 0; /* убрать внутренние отступы */
         padding: 0; /* убрать внешние отступы */
@@ -25,17 +28,63 @@
         background: #8AB8CC; /* фон пунктов при наведении */
     }
 </style>
+    <style>
+        .add_to_cart, .cart {
+    display: inline-block;
+    margin: 5px;
+    padding: 2px 5px;
+    background: #87CEFA;
+    border: 1px solid rgba(0,0,0,0.15);
+    border-radius: 4px;
+    transition: all 0.3s ease-out;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.5),
+        0 2px 2px rgba(0,0,0,0.3),
+        0 0 4px 1px rgba(0,0,0,0.2);
+    /* Font styles */
+    text-decoration: none;
+    text-shadow: 0 1px rgba(255,255,255,0.7);
+}
+
+    .add_to_cart:hover {
+    background: #C7FE0A
+}
+    </style>
+    <style>
+        body {
+
+padding: 0;
+
+margin: 0;
+
+background: #D3D3D3 no-repeat center top;
+
+width: 100%;
+
+display: table;
+
+      }</style>
+
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 </head>
 <body>
 {%if not user.login%}
-    <h2><p align="center"><a href="/registration">Зарегестрируйтесь что бы сделать заказ</a></p></h2>
+    <h2><p align="center"><a href="/registration">Войдите или зарегестрируйтесь что бы сделать заказ</a></p></h2>
 {%endif%}
-<p align="right"><a href="/cart"> Корзина </a>login as: {{user.login}}
+{%if user.login%}
+    <h2 id="cart">
+        <form action="/cart">
+    <p align="center"><button class="cart" type="submit"><h2>Корзина</h2></button>
+</form>
+    </h2>
+
+{%endif%}
+
+<p align="right">login as: {{user.login}}
     {% for role in user.roles %}
                 <br> user role: {{role.name}}
     {% endfor %}</p>
-<p align="right"> <a href="/login">login</a> <a href="/logout">logout</a></p>
+<p align="right"> <a href="/login">Login</a> <a href="/logout">Logout</a></p>
 {% if admin%}
     <p><a href="/orders">Все заказы</a></p>
     <p><a href="/category/new">Добавить категорию</a></p>
@@ -48,24 +97,27 @@
 {%endif%}
 
 <h2><p align="center"><a href="/">All menu</a></p></h2>
-        {% for category in categories %}
-    <ul id="menu"><a href="{{url_for('index_id', id=category.id)}}">
+      <div align="center">
+          {% for category in categories %}
+    <ul id="menu"> <a href="{{url_for('index_id', id=category.id)}}">
         <li>{{ category.name }}</li></a>
     </ul>
         {% endfor %}
+      </div>
     <ul>
          {% for food in foods %}
-        <li>{{food.image}}
-            {{food.name}}
-        {{food.description}}
-        {{food.price}}
+        <li>
+        Блюдо: {{food.name}}</br>
+        Описание: {{food.description}}
+        {{food.price}} грн.
             {% if user.login %}
             <button
                     class="add_to_cart"
                     data-food_id="{{food.id}}"
             >+</button>
             {% endif %}
-        </li>
+        </li><p>
+
           {% endfor %}
      </ul>
 </body>
